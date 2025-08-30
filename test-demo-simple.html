@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriBot - Demo Simplificado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .demo-notice {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .bot-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .bot-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        .message.user .message-avatar {
+            background: #3498db;
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: #27ae60;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.user .message-content {
+            background: #3498db;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #ecf0f1;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ecf0f1;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #3498db;
+        }
+
+        .chat-input button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: #2980b9;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .feature-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .privacy-banner {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #bdc3c7;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Privacy Banner -->
+        <div class="privacy-banner">
+            <strong>🔒 Privacidad Garantizada:</strong> NutriBot cumple con GDPR y LOPDGDD. Todos los datos se procesan localmente.
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 NutriBot</h1>
+            <p>Asistente de Nutrición con IA - Cumplimiento GDPR/LOPDGDD</p>
+        </div>
+
+        <!-- Demo Notice -->
+        <div class="demo-notice">
+            <h3>🎯 MODO DEMO - FUNCIONANDO</h3>
+            <p>Esta es una versión de demostración que simula las respuestas del chatbot. En la versión completa, se conectará con GPT-OSS:20B para respuestas reales.</p>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="bot-avatar">🤖</div>
+                <div class="bot-info">
+                    <h3>NutriBot</h3>
+                    <p><span class="status-indicator"></span>Conectado - Listo para ayudarte</p>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        ¡Hola! Soy NutriBot, tu asistente de nutrición personal. Estoy aquí para ayudarte con consejos nutricionales, evaluaciones de salud y planes de comidas personalizados. ¿En qué puedo ayudarte hoy?
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar">🤖</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="sendQuickMessage('¿Puedes darme consejos para una dieta saludable?')">🥗 Dieta Saludable</button>
+                <button class="quick-btn" onclick="sendQuickMessage('¿Qué alimentos son buenos para la energía?')">⚡ Energía</button>
+                <button class="quick-btn" onclick="sendQuickMessage('¿Cómo puedo perder peso de forma saludable?')">⚖️ Control de Peso</button>
+                <button class="quick-btn" onclick="sendQuickMessage('¿Qué debo comer antes del ejercicio?')">🏃‍♂️ Nutrición Deportiva</button>
+                <button class="quick-btn" onclick="sendQuickMessage('¿Puedes crear un plan de comidas para mí?')">📋 Plan de Comidas</button>
+                <button class="quick-btn" onclick="sendQuickMessage('¿Qué alimentos ayudan con la digestión?')">🌿 Digestión</button>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Escribe tu pregunta aquí..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>IA Avanzada</h3>
+                <p>Utiliza GPT-OSS:20B para proporcionar respuestas inteligentes y personalizadas basadas en evidencia científica.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Privacidad Total</h3>
+                <p>Cumple con GDPR y LOPDGDD. Todos los datos se procesan localmente sin enviarse a servidores externos.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍⚕️</div>
+                <h3>Asistente Profesional</h3>
+                <p>Diseñado como extensión para nutricionistas, proporcionando evaluaciones detalladas y recomendaciones precisas.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Evaluaciones Personalizadas</h3>
+                <p>Genera evaluaciones de salud completas y planes de nutrición adaptados a tus necesidades específicas.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const responses = {
+            'dieta saludable': 'Una dieta saludable debe incluir una variedad de alimentos: frutas y verduras (5 porciones diarias), proteínas magras (pollo, pescado, legumbres), granos enteros (arroz integral, quinoa), y grasas saludables (aguacate, frutos secos). Recuerda mantenerte hidratado con al menos 2 litros de agua al día.',
+            'energía': 'Para aumentar tu energía de forma natural, incluye en tu dieta: frutas ricas en vitamina C (naranjas, kiwi), frutos secos (almendras, nueces), semillas (chía, girasol), pescado azul (salmón, atún), y carbohidratos complejos (avena, quinoa). Evita el azúcar refinado que causa picos de energía.',
+            'perder peso': 'Para perder peso de forma saludable: 1) Crea un déficit calórico moderado (300-500 calorías), 2) Aumenta el consumo de proteínas (1.2-1.6g por kg), 3) Incluye fibra (25-30g diarios), 4) Bebe mucha agua, 5) Combina dieta con ejercicio regular. Siempre consulta con un profesional.',
+            'ejercicio': 'Antes del ejercicio: carbohidratos complejos 2-3 horas antes (avena, pan integral), proteínas ligeras 1 hora antes (yogur griego, huevo). Durante: agua o bebida isotónica. Después: proteínas (20-30g) y carbohidratos en 30 minutos (batido de proteínas con fruta).',
+            'plan de comidas': 'Te ayudo a crear un plan personalizado. Primero necesito conocer: tu edad, peso, altura, nivel de actividad física, objetivos (pérdida de peso, ganancia muscular, mantenimiento), y cualquier restricción alimentaria. ¿Te gustaría comenzar una evaluación completa?',
+            'digestión': 'Para mejorar la digestión: 1) Consume fibra (25-30g diarios) de frutas, verduras y granos enteros, 2) Incluye probióticos (yogur, kéfir, chucrut), 3) Bebe suficiente agua, 4) Come despacio y mastica bien, 5) Evita comidas muy grasas o picantes antes de dormir.',
+            'default': 'Gracias por tu consulta. Soy NutriBot y estoy aquí para ayudarte con nutrición y salud. Puedo ayudarte con: evaluaciones de salud, consejos nutricionales, planes de comidas, y seguimiento de progreso. ¿En qué puedo ayudarte específicamente?'
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Show typing indicator
+                showTyping();
+                
+                // Simulate response delay
+                setTimeout(() => {
+                    hideTyping();
+                    const response = getResponse(message);
+                    addMessage(response, 'bot');
+                }, 1500);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'user' ? '👤' : '🤖';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            for (const [key, response] of Object.entries(responses)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            
+            return responses.default;
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        // Auto-focus on input
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
+
