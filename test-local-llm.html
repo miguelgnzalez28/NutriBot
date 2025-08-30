@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriBot - Prueba de LLM Local</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #27ae60; }
+        .status-offline { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .privacy-notice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Privacy Notice -->
+        <div class="privacy-notice">
+            <strong>🔒 Privacidad Garantizada:</strong> Esta prueba utiliza LLM local, todos los datos se procesan en tu dispositivo sin enviarse a servidores externos.
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 NutriBot - Prueba de LLM Local</h1>
+            <p>Prueba la funcionalidad del chatbot con modelos de IA locales</p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card">
+            <h3>📊 Estado del Servicio</h3>
+            <div id="serviceStatus">
+                <span class="status-indicator status-offline"></span>
+                <span>Verificando conexión con Ollama...</span>
+            </div>
+            <div id="modelStatus" style="margin-top: 10px;">
+                <span>Modelos disponibles: Verificando...</span>
+            </div>
+        </div>
+
+        <!-- Test Section -->
+        <div class="test-section">
+            <h3>🧪 Prueba de LLM Local</h3>
+            
+            <div class="input-group">
+                <label for="modelSelect">Modelo:</label>
+                <select id="modelSelect">
+                    <option value="gpt-oss:20b">gpt-oss:20b (Recomendado)</option>
+                    <option value="llama2:7b">llama2:7b</option>
+                    <option value="llama2:13b">llama2:13b</option>
+                    <option value="llama2:70b">llama2:70b</option>
+                    <option value="mistral:7b">mistral:7b</option>
+                    <option value="codellama:7b">codellama:7b</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="promptInput">Prompt de prueba:</label>
+                <textarea id="promptInput" rows="3" placeholder="Escribe tu pregunta aquí...">Hola, soy NutriBot. ¿Puedes darme consejos sobre nutrición saludable?</textarea>
+            </div>
+
+            <button class="btn btn-success" onclick="testLLM()">🚀 Probar LLM</button>
+            <button class="btn" onclick="testNutritionQuery()">🥗 Consulta Nutricional</button>
+            <button class="btn" onclick="testHealthAssessment()">🏥 Evaluación de Salud</button>
+            <button class="btn" onclick="clearResponse()">🗑️ Limpiar</button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Procesando con LLM local...</p>
+            </div>
+
+            <div class="response-area" id="responseArea">
+                Esperando respuesta...
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>📋 Instrucciones de Instalación</h3>
+            <ol>
+                <li><strong>Instalar Ollama:</strong> Ejecuta el script <code>install-ollama.ps1</code> en PowerShell como administrador</li>
+                <li><strong>Descargar modelo:</strong> El script descargará automáticamente gpt-oss:20b</li>
+                <li><strong>Verificar conexión:</strong> El estado del servicio se mostrará arriba</li>
+                <li><strong>Probar funcionalidad:</strong> Usa los botones de prueba para verificar el LLM</li>
+            </ol>
+
+            <h4>Comandos útiles:</h4>
+            <div class="code-block">
+# Verificar instalación
+ollama --version
+
+# Listar modelos
+ollama list
+
+# Descargar modelo
+ollama pull gpt-oss:20b
+
+# Ejecutar modelo interactivo
+ollama run gpt-oss:20b
+
+# Iniciar servicio
+ollama serve
+            </div>
+
+            <h4>Configuración para NutriBot:</h4>
+            <div class="code-block">
+# En tu archivo .env
+USE_LOCAL_LLM=true
+OLLAMA_BASE_URL=http://localhost:11434
+LOCAL_MODEL=gpt-oss:20b
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OLLAMA_BASE_URL = 'http://localhost:11434';
+
+        // Check service status on page load
+        window.onload = function() {
+            checkServiceStatus();
+            loadAvailableModels();
+        };
+
+        async function checkServiceStatus() {
+            const statusElement = document.getElementById('serviceStatus');
+            
+            try {
+                const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
+                if (response.ok) {
+                    statusElement.innerHTML = '<span class="status-indicator status-online"></span><span>✅ Servicio Ollama conectado</span>';
+                } else {
+                    throw new Error('Service not responding');
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<span class="status-indicator status-offline"></span><span>❌ Servicio Ollama no disponible</span>';
+                console.error('Ollama service error:', error);
+            }
+        }
+
+        async function loadAvailableModels() {
+            const modelStatus = document.getElementById('modelStatus');
+            
+            try {
+                const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
+                const data = await response.json();
+                
+                if (data.models && data.models.length > 0) {
+                    const modelNames = data.models.map(m => m.name).join(', ');
+                    modelStatus.innerHTML = `<span>✅ Modelos disponibles: ${modelNames}</span>`;
+                    
+                    // Update model select
+                    const modelSelect = document.getElementById('modelSelect');
+                    modelSelect.innerHTML = '';
+                    data.models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name;
+                        option.textContent = model.name;
+                        modelSelect.appendChild(option);
+                    });
+                } else {
+                    modelStatus.innerHTML = '<span>⚠️ No hay modelos disponibles</span>';
+                }
+            } catch (error) {
+                modelStatus.innerHTML = '<span>❌ Error al cargar modelos</span>';
+                console.error('Error loading models:', error);
+            }
+        }
+
+        async function testLLM() {
+            const prompt = document.getElementById('promptInput').value;
+            const model = document.getElementById('modelSelect').value;
+            
+            if (!prompt.trim()) {
+                alert('Por favor, ingresa un prompt de prueba');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            num_predict: 2048,
+                            top_p: 0.9,
+                            top_k: 40,
+                            repeat_penalty: 1.1
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.response) {
+                    displayResponse({
+                        success: true,
+                        response: data.response,
+                        model: model,
+                        processingTime: data.eval_duration || 0,
+                        prompt: prompt
+                    });
+                } else {
+                    throw new Error('No response from model');
+                }
+
+            } catch (error) {
+                displayResponse({
+                    success: false,
+                    error: error.message,
+                    prompt: prompt
+                });
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function testNutritionQuery() {
+            const nutritionPrompts = [
+                "¿Qué alimentos son buenos para aumentar la energía?",
+                "¿Cómo puedo mejorar mi digestión con la dieta?",
+                "¿Qué debo comer antes del ejercicio?",
+                "¿Puedes darme consejos para una dieta vegetariana saludable?",
+                "¿Qué alimentos ayudan a controlar el colesterol?"
+            ];
+            
+            const randomPrompt = nutritionPrompts[Math.floor(Math.random() * nutritionPrompts.length)];
+            document.getElementById('promptInput').value = randomPrompt;
+            testLLM();
+        }
+
+        function testHealthAssessment() {
+            const assessmentPrompts = [
+                "Genera la primera pregunta de una evaluación de salud nutricional",
+                "¿Qué preguntas son importantes para evaluar los hábitos alimenticios de una persona?",
+                "Crea una pregunta sobre el nivel de actividad física para una evaluación nutricional",
+                "Genera una pregunta sobre objetivos de salud y peso",
+                "¿Qué información necesitas para crear un plan de comidas personalizado?"
+            ];
+            
+            const randomPrompt = assessmentPrompts[Math.floor(Math.random() * assessmentPrompts.length)];
+            document.getElementById('promptInput').value = randomPrompt;
+            testLLM();
+        }
+
+        function displayResponse(result) {
+            const responseArea = document.getElementById('responseArea');
+            
+            if (result.success) {
+                const response = `✅ RESPUESTA EXITOSA
+Modelo: ${result.model}
+Tiempo de procesamiento: ${result.processingTime}ms
+
+PROMPT:
+${result.prompt}
+
+RESPUESTA:
+${result.response}
+
+---
+Privacidad: ✅ Datos procesados localmente
+Cumplimiento: ✅ GDPR/LOPDGDD compatible`;
+                
+                responseArea.textContent = response;
+            } else {
+                const errorResponse = `❌ ERROR EN LA PRUEBA
+
+PROMPT:
+${result.prompt}
+
+ERROR:
+${result.error}
+
+POSIBLES SOLUCIONES:
+1. Verifica que Ollama esté ejecutándose (ollama serve)
+2. Asegúrate de que el modelo esté descargado (ollama pull llama2:7b)
+3. Revisa la conexión en http://localhost:11434
+4. Verifica los logs de Ollama`;
+                
+                responseArea.textContent = errorResponse;
+            }
+        }
+
+        function clearResponse() {
+            document.getElementById('responseArea').textContent = 'Esperando respuesta...';
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // Auto-refresh status every 30 seconds
+        setInterval(checkServiceStatus, 30000);
+    </script>
+</body>
+</html>

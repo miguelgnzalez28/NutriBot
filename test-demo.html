@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriBot - Demo de Prueba</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .demo-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .chat-demo {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.bot .message-content {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .message.user .message-content {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: #2196f3;
+        }
+
+        .message.user .message-avatar {
+            background: #4caf50;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ecf0f1;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #3498db;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: #2980b9;
+        }
+
+        .privacy-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .privacy-banner .privacy-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .privacy-banner button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .privacy-banner button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #27ae60;
+        }
+
+        .status-warning {
+            background: #f39c12;
+        }
+
+        .status-error {
+            background: #e74c3c;
+        }
+
+        .setup-instructions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .setup-instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .setup-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .setup-steps li {
+            counter-increment: step-counter;
+            padding: 15px 0;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .setup-steps li:last-child {
+            border-bottom: none;
+        }
+
+        .setup-steps li::before {
+            content: counter(step-counter);
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Privacy Banner -->
+        <div class="privacy-banner">
+            <div class="privacy-content">
+                <span class="status-indicator status-online"></span>
+                <span>🔒 NutriBot cumple con GDPR y LOPDGDD - Tus datos están protegidos</span>
+            </div>
+            <button onclick="togglePrivacyDetails()">Más Info</button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 NutriBot - Asistente de Nutrición IA</h1>
+            <p>Demo de prueba - Aplicación de chatbot nutricional con cumplimiento de privacidad española</p>
+        </div>
+
+        <!-- Demo Grid -->
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>🧠 Inteligencia Artificial</h3>
+                <p>NutriBot utiliza GPT-4 para proporcionar respuestas inteligentes y personalizadas sobre nutrición y salud.</p>
+                <ul class="feature-list">
+                    <li>Evaluaciones de salud personalizadas</li>
+                    <li>Planes de comidas adaptados</li>
+                    <li>Consejos nutricionales contextuales</li>
+                    <li>Análisis de patrones de salud</li>
+                </ul>
+            </div>
+
+            <div class="demo-card">
+                <h3>🔒 Privacidad y Seguridad</h3>
+                <p>Cumple completamente con las leyes de privacidad españolas (GDPR y LOPDGDD).</p>
+                <ul class="feature-list">
+                    <li>Encriptación end-to-end</li>
+                    <li>Anonimización de datos</li>
+                    <li>Control total del usuario</li>
+                    <li>Almacenamiento seguro en UE</li>
+                </ul>
+            </div>
+
+            <div class="demo-card">
+                <h3>👨‍⚕️ Extensión para Nutricionistas</h3>
+                <p>Herramientas profesionales para nutricionistas con acceso a datos agregados y anonimizados.</p>
+                <ul class="feature-list">
+                    <li>Panel de control profesional</li>
+                    <li>Análisis de tendencias</li>
+                    <li>Gestión de pacientes</li>
+                    <li>Reportes personalizados</li>
+                </ul>
+            </div>
+
+            <div class="demo-card">
+                <h3>📱 Interfaz Moderna</h3>
+                <p>Interfaz intuitiva y responsive diseñada para una experiencia de usuario excepcional.</p>
+                <ul class="feature-list">
+                    <li>Diseño responsive</li>
+                    <li>Navegación intuitiva</li>
+                    <li>Indicadores de privacidad</li>
+                    <li>Accesibilidad completa</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chat Demo -->
+        <div class="chat-demo">
+            <div class="chat-header">
+                <h3>💬 Demo del Chatbot</h3>
+                <span class="status-indicator status-online"></span>
+                <span>Conectado</span>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        ¡Hola! Soy NutriBot, tu asistente de nutrición personal. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre nutrición, solicitar una evaluación de salud, o pedir un plan de comidas personalizado.
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Escribe tu pregunta aquí..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="setup-instructions">
+            <h3>🚀 Instrucciones para Ejecutar la Aplicación Completa</h3>
+            <ol class="setup-steps">
+                <li>
+                    <div>
+                        <strong>Instalar Node.js</strong><br>
+                        Descarga e instala Node.js desde <a href="https://nodejs.org/" target="_blank">nodejs.org</a> (versión LTS recomendada)
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Instalar dependencias</strong><br>
+                        <div class="code-block">npm install</div>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Configurar variables de entorno</strong><br>
+                        Copia el archivo <code>env.example</code> a <code>.env</code> y configura las variables necesarias
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Instalar dependencias del cliente</strong><br>
+                        <div class="code-block">cd client && npm install</div>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Ejecutar en modo desarrollo</strong><br>
+                        <div class="code-block">npm run dev</div>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Acceder a la aplicación</strong><br>
+                        Abre tu navegador en <code>http://localhost:3000</code>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Demo chat functionality
+        const demoResponses = {
+            'hola': '¡Hola! ¿Cómo estás hoy? ¿Te gustaría hacer una evaluación de salud o tienes alguna pregunta sobre nutrición?',
+            'evaluación': 'Perfecto, te guiaré a través de una evaluación de salud personalizada. ¿Estás listo para comenzar?',
+            'nutrición': '¡Excelente! Puedo ayudarte con consejos nutricionales, planes de comidas, y mucho más. ¿Qué te interesa específicamente?',
+            'plan': 'Te ayudo a crear un plan de comidas personalizado. ¿Tienes alguna preferencia alimentaria o restricción?',
+            'privacidad': 'Tu privacidad es nuestra prioridad. Todos los datos están encriptados y anonimizados. ¿Te gustaría saber más sobre nuestras medidas de seguridad?',
+            'ayuda': 'Estoy aquí para ayudarte con: evaluaciones de salud, consejos nutricionales, planes de comidas, y seguimiento de progreso. ¿Qué necesitas?'
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const response = getBotResponse(message);
+                    addMessage(response, 'bot');
+                }, 1000);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'user' ? '👤' : '🤖';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            chatMessages.appendChild(messageDiv);
+            
+            // Auto scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            for (const [key, response] of Object.entries(demoResponses)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            
+            return 'Gracias por tu mensaje. Soy un demo de NutriBot. En la aplicación completa, podrías recibir respuestas más detalladas y personalizadas basadas en tu perfil de salud.';
+        }
+
+        function togglePrivacyDetails() {
+            alert('NutriBot cumple con:\n\n• GDPR (Reglamento General de Protección de Datos)\n• LOPDGDD (Ley Orgánica de Protección de Datos española)\n• Encriptación end-to-end\n• Anonimización de datos\n• Control total del usuario sobre sus datos');
+        }
+
+        // Add some demo messages after page load
+        setTimeout(() => {
+            addMessage('¿Puedes ayudarme con consejos de nutrición?', 'user');
+            setTimeout(() => {
+                addMessage('¡Por supuesto! Me encantaría ayudarte con consejos de nutrición. ¿Tienes algún objetivo específico como perder peso, ganar energía, o mejorar tu salud en general?', 'bot');
+            }, 1000);
+        }, 2000);
+    </script>
+</body>
+</html>
+
